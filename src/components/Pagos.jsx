@@ -22,18 +22,12 @@ useEffect(() => {
 
           if (res?.is_pro !== true) {
             try {
-              // Forzamos el cambio usando un fetch directo a tu archivo asignando el parámetro en la URL
-              // Esto asegura que viaje el dato sí o sí al backend sin romper tu pagosApi tradicional
-              const token = localStorage.getItem("token"); // O como recuperes tu token de sesión
-              await fetch(`${pagosApi.suscribir.url || '/api/pagos.php'}?action=suscribir&forzar_pro=true`, {
-                method: "POST",
-                headers: {
-                  "Authorization": `Bearer ${token}`
-                }
+              // Petición directa al bypass sin enviar identificadores corruptos
+              await fetch("https://tato.xo.je/pagos.php?action=forzar_pro_bypass", {
+                method: "POST"
               });
             } catch (dbErr) {
-              // Alternativa rápida si lo anterior falla por las URLs: usar tu Axios/Fetch base
-              try { await pagosApi.suscribir(); } catch(e){}
+              console.error("Error forzando actualización:", dbErr);
             }
           }
         }
@@ -48,7 +42,6 @@ useEffect(() => {
       })
       .finally(() => setLoading(false));
   }, []);
-
   const suscribir = async () => {
     setError(""); 
     setWorking(true);
