@@ -19,19 +19,21 @@ export function AppProvider({ children }) {
 useEffect(() => {
     if (!user) return;
     setLoading(true);
+    setError(null); // Limpiamos errores previos al cambiar de pantalla
+    
     Promise.all([tareasApi.listar(), notasApi.listar()])
       .then(([t, n]) => { 
-        // 🔥 VALIDACIÓN DE SEGURIDAD: Si la API no manda un array, guardamos una lista vacía []
         setTareas(Array.isArray(t) ? t : []); 
         setNotas(Array.isArray(n) ? n : []); 
       })
       .catch((e) => {
-        const msg = e.message.toLowerCase();
-        if (msg.includes("sesion") || msg.includes("no has iniciado") || msg.includes("token") || msg.includes("autoriz")) {
-          logout();
-          return;
-        }
-        setError(e.message);
+        console.error("Error cargando datos del servidor:", e.message);
+        // 💡 EN LUGAR DE CERRAR SESIÓN, PROTEGEMOS LA INTERFAZ:
+        // Si el backend no responde o tu usuario no existe en la base de datos limpia,
+        // simplemente dejamos las listas limpias para que puedas registrarte o crear nuevas.
+        setTareas([]);
+        setNotas([]);
+        setError("Inicia sesión o crea una cuenta nueva para sincronizar con este servidor.");
       })
       .finally(() => setLoading(false));
   }, [user]);
