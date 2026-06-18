@@ -11,8 +11,21 @@ export default function Pagos() {
   useEffect(() => {
     pagosApi.historial()
       .then(res => {
+        // 1. Revisamos qué dice la base de datos normalmente
+        let esPro = res?.is_pro === true;
+
+        // ─── EL MINI ATAJO POST-PAGO ───
+        // Leemos la URL para ver si viene de un pago exitoso de Mercado Pago
+        const params = new URLSearchParams(window.location.search);
+        const status = params.get("status") || params.get("collection_status");
+
+        // Si Mercado Pago dice que fue aprobado, ¡lo volvemos Pro en la interfaz sin tanto rollo!
+        if (status === "approved" || status === "success") {
+          esPro = true;
+        }
+
         setInfo({
-          is_pro: res?.is_pro === true,
+          is_pro: esPro,
           historial: Array.isArray(res?.historial) ? res.historial : []
         });
       })
@@ -31,15 +44,7 @@ export default function Pagos() {
       if (!url) {
         throw new Error(`No se recibió la URL de MercadoPago: ${JSON.stringify(res)}`);
       }
-
-      // ── MINI ATAJO AUTO-PRO ANTES DE IR A MERCADO PAGO ──
-      setInfo((prev) => ({ ...prev, is_pro: true }));
-      
-      // Breve retraso de 100ms para asegurar la actualización local antes de redirigir
-      setTimeout(() => {
-        window.location.href = url;
-      }, 100);
-
+      window.location.href = url;
     } catch (err) {
       setError(err.message);
       setWorking(false);
