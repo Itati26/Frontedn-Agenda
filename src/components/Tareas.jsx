@@ -43,6 +43,29 @@ export default function Tareas() {
     e.target.value = "";
   };
 
+  // Función para forzar la descarga real del PDF
+  const downloadFile = async (url, filename) => {
+    if (!url) {
+      alert("No hay ningún archivo adjunto en esta tarea.");
+      return;
+    }
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = filename.endsWith(".pdf") ? filename : `${filename}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      // Si hay error de CORS, intentamos abrirlo en otra pestaña como respaldo seguro
+      window.open(url, "_blank");
+    }
+  };
+
   console.log(tareas);
   console.log(Array.isArray(tareas));
 
@@ -124,15 +147,13 @@ export default function Tareas() {
                 </div>
                 <div className="flex gap-1 shrink-0">
                   {isPro ? (
-                    <a 
-                      href={t.archivo_pdf} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
+                    <button 
+                      onClick={() => downloadFile(t.archivo_pdf, t.nombre_tarea)} 
                       className="p-1.5 text-gray-400 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors" 
                       title="Descargar PDF"
                     >
                       <FileUp size={15} />
-                    </a>
+                    </button>
                   ) : (
                     <button onClick={() => setPage("pagos")} className="p-1.5 text-gray-300 hover:text-amber-500 hover:bg-amber-50 rounded-lg transition-colors" title="Requiere Plan Pro">
                       <Sparkles size={15} />
