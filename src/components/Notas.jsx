@@ -32,7 +32,7 @@ export default function Notas() {
     setShowForm(false);
   };
 
-  // Pastel note colors cycling
+
   const colors = [
     "bg-yellow-50 border-yellow-200",
     "bg-pink-50 border-pink-200",
@@ -112,7 +112,7 @@ export default function Notas() {
         </div>
       )}
 
-      {/* Grid */}
+     
       {notas.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
           <StickyNote size={40} className="mx-auto mb-3 opacity-40" />

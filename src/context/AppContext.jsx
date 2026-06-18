@@ -19,7 +19,7 @@ export function AppProvider({ children }) {
 useEffect(() => {
     if (!user) return;
     setLoading(true);
-    setError(null); // Limpiamos errores previos al cambiar de pantalla
+    setError(null); 
     
     Promise.all([tareasApi.listar(), notasApi.listar()])
       .then(([t, n]) => { 
@@ -28,10 +28,7 @@ useEffect(() => {
       })
       .catch((e) => {
         console.error("Error cargando datos del servidor:", e.message);
-        // 💡 EN LUGAR DE CERRAR SESIÓN, PROTEGEMOS LA INTERFAZ:
-        // Si el backend no responde o tu usuario no existe en la base de datos limpia,
-        // simplemente dejamos las listas limpias para que puedas registrarte o crear nuevas.
-        setTareas([]);
+       
         setNotas([]);
         setError("Inicia sesión o crea una cuenta nueva para sincronizar con este servidor.");
       })

@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useApp } from "../context/AppContext";
-import { Plus, Pencil, Trash2, X, Check, Clock, FileUp, Sparkles } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Check, Clock, Download } from "lucide-react";
 
 const STATUS_LABELS = {
   P:  { label: "Pendiente",   color: "bg-amber-100 text-amber-700" },
@@ -11,13 +11,10 @@ const STATUS_LABELS = {
 const EMPTY = { nombre_tarea: "", fecha_entrega: "", descripcion: "", status: "P" };
 
 export default function Tareas() {
-  const { tareas, addTarea, updateTarea, deleteTarea, isPro, setPage } = useApp();
+  const { tareas, addTarea, updateTarea, deleteTarea } = useApp();
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing]   = useState(null);
   const [form, setForm]         = useState(EMPTY);
-  const [pdfTarea, setPdfTarea] = useState(null); // id_tarea al que subir PDF
-  const [pdfNombre, setPdfNombre] = useState("");
-  const fileRef = useRef();
 
   const openNew  = () => { setEditing(null); setForm(EMPTY); setShowForm(true); };
   const openEdit = (t) => { setEditing(t.id_tarea); setForm({ nombre_tarea: t.nombre_tarea, fecha_entrega: t.fecha_entrega, descripcion: t.descripcion, status: t.status }); setShowForm(true); };
@@ -28,30 +25,9 @@ export default function Tareas() {
     setShowForm(false);
   };
 
-  const handlePdf = (id_tarea) => {
-    setPdfTarea(id_tarea);
-    setPdfNombre("");
-    fileRef.current.click();
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    if (file.type !== "application/pdf") { alert("Solo se permiten archivos PDF"); return; }
-    setPdfNombre(file.name);
-    alert(`PDF "${file.name}" adjuntado a la tarea.`);
-    e.target.value = "";
-  };
-
-  console.log(tareas);
-console.log(Array.isArray(tareas));
-
   return (
     <div className="max-w-3xl mx-auto p-4">
-      {/* Input oculto para PDF */}
-      <input type="file" accept="application/pdf" ref={fileRef} className="hidden" onChange={handleFileChange} />
-
-      {/* Header */}
+      
       <div className="flex items-center justify-between mb-5">
         <div>
           <h2 className="text-xl font-bold text-gray-900">Tareas</h2>
@@ -62,7 +38,6 @@ console.log(Array.isArray(tareas));
         </button>
       </div>
 
-      {/* Modal Form */}
       {showForm && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
@@ -100,7 +75,6 @@ console.log(Array.isArray(tareas));
         </div>
       )}
 
-      {/* List */}
       {tareas.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
           <Clock size={40} className="mx-auto mb-3 opacity-40" />
@@ -123,15 +97,20 @@ console.log(Array.isArray(tareas));
                   {t.descripcion && <p className="text-xs text-gray-500 line-clamp-2">{t.descripcion}</p>}
                 </div>
                 <div className="flex gap-1 shrink-0">
-                  {isPro ? (
-                    <button onClick={() => handlePdf(t.id_tarea)} className="p-1.5 text-gray-400 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors" title="Adjuntar PDF">
-                      <FileUp size={15} />
-                    </button>
-                  ) : (
-                    <button onClick={() => setPage("pagos")} className="p-1.5 text-gray-300 hover:text-amber-500 hover:bg-amber-50 rounded-lg transition-colors" title="Requiere Plan Pro">
-                      <Sparkles size={15} />
-                    </button>
+                  
+                  {/* Botón único de descarga */}
+                  {t.archivo_pdf && (
+                    <a 
+                      href={t.archivo_pdf} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="p-1.5 text-gray-400 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors" 
+                      title="Descargar PDF"
+                    >
+                      <Download size={15} />
+                    </a>
                   )}
+
                   <button onClick={() => openEdit(t)} className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"><Pencil size={15} /></button>
                   <button onClick={() => deleteTarea(t.id_tarea)} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={15} /></button>
                 </div>

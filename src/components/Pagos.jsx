@@ -22,7 +22,6 @@ useEffect(() => {
 
           if (res?.is_pro !== true) {
             try {
-              // Petición directa al bypass sin enviar identificadores corruptos
               await fetch("https://tato.xo.je/pagos.php?action=forzar_pro_bypass", {
                 method: "POST"
               });
@@ -96,7 +95,7 @@ useEffect(() => {
       </div>
 
       {info.is_pro ? (
-        /* ── Usuario Pro ── */
+        
         <div className="bg-gradient-to-br from-indigo-600 to-violet-600 text-white rounded-2xl p-6 mb-6 shadow-lg">
           <div className="flex items-center gap-2 mb-3">
             <ShieldCheck size={22} />
@@ -113,7 +112,7 @@ useEffect(() => {
           </button>
         </div>
       ) : (
-        /* ── Plan de suscripción ── */
+     
         <div className="bg-blue-700 text-white rounded-2xl p-6 mb-6 shadow-lg">
           <div className="flex items-center gap-2 mb-1">
             <Sparkles size={18} />

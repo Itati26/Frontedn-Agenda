@@ -1,6 +1,4 @@
-// api.js
-// Todas las peticiones al backend PHP pasan por aquí.
-// El token se guarda en localStorage y se manda en cada request.
+
 
 const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
@@ -23,7 +21,7 @@ async function request(path, options = {}) {
   return data;
 }
 
-// ── Auth (login / registro) ──────────────────────────────────────
+
 export const auth = {
   login:    (correo, contrasena) =>
     request('/auth.php?action=login',    { method: 'POST', body: JSON.stringify({ correo, contrasena }) }),
@@ -31,7 +29,6 @@ export const auth = {
     request('/auth.php?action=register', { method: 'POST', body: JSON.stringify({ correo, contrasena }) }),
 };
 
-// ── Tareas ───────────────────────────────────────────────────────
 export const tareasApi = {
   listar:     ()           => request('/tareas.php'),
   crear:      (data)       => request('/tareas.php',              { method: 'POST',   body: JSON.stringify(data) }),
@@ -39,7 +36,6 @@ export const tareasApi = {
   eliminar:   (id)         => request(`/tareas.php?id=${id}`,    { method: 'DELETE' }),
 };
 
-// ── Notas ────────────────────────────────────────────────────────
 export const notasApi = {
   listar:     ()           => request('/notas.php'),
   crear:      (data)       => request('/notas.php',               { method: 'POST',   body: JSON.stringify(data) }),
@@ -47,7 +43,6 @@ export const notasApi = {
   eliminar:   (id)         => request(`/notas.php?id=${id}`,     { method: 'DELETE' }),
 };
 
-// ── Pagos ────────────────────────────────────────────────────────
 export const pagosApi = {
   historial:  ()     => request('/pagos.php'),
   suscribir:  ()     => request('/pagos.php?action=suscribir', { method: 'POST', body: JSON.stringify({}) }),
