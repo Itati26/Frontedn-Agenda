@@ -11,18 +11,20 @@ export default function Pagos() {
   useEffect(() => {
     pagosApi.historial()
       .then(res => {
-        // 🔥 CAMBIO 1: Evita que 'historial' se vuelva undefined si el backend manda datos vacíos
         setInfo({
           is_pro: res?.is_pro === true,
           historial: Array.isArray(res?.historial) ? res.historial : []
         });
       })
-      .catch(() => {})
+      .catch((err) => {
+        console.error("Error al cargar historial:", err);
+      })
       .finally(() => setLoading(false));
   }, []);
 
   const suscribir = async () => {
-    setError(""); setWorking(true);
+    setError(""); 
+    setWorking(true);
     try {
       const res = await pagosApi.suscribir();
       const url = res.init_point || res.sandbox_init_point;
@@ -54,6 +56,15 @@ export default function Pagos() {
     rechazado: <XCircle    size={14} className="text-red-500"   />,
     cancelado: <XCircle    size={14} className="text-gray-400"  />,
     pendiente: <Clock      size={14} className="text-amber-500" />,
+  };
+
+  // Functión segura para formatear la fecha sin romper la App
+  const formatFecha = (fechaRaw) => {
+    if (!fechaRaw || fechaRaw.startsWith("0000")) return "Reciente";
+    const d = new Date(fechaRaw);
+    return isNaN(d.getTime()) 
+      ? "Reciente" 
+      : d.toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" });
   };
 
   if (loading) return <div className="text-center py-20 text-gray-400">Cargando...</div>;
@@ -111,7 +122,6 @@ export default function Pagos() {
         </div>
       )}
 
-      {/* 🔥 CAMBIO 2: Verificación doblemente segura del arreglo antes de hacer el .map() */}
       {Array.isArray(info?.historial) && info.historial.length > 0 && (
         <>
           <h3 className="font-semibold text-gray-800 mb-3 text-sm">Historial</h3>
@@ -121,7 +131,7 @@ export default function Pagos() {
                 <div>
                   <p className="text-sm font-medium text-gray-900">{p.descripcion}</p>
                   <p className="text-xs text-gray-400">
-                    {new Date(p.creado_en).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" })}
+                    {formatFecha(p.creado_en)}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
