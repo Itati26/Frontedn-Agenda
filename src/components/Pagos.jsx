@@ -3,14 +3,20 @@ import { pagosApi } from "../api";
 import { CreditCard, CheckCircle, XCircle, Clock, Sparkles, ShieldCheck } from "lucide-react";
 
 export default function Pagos() {
-  const [info,    setInfo]    = useState({ is_pro: false, historial: [] });
+  const [info, setInfo] = useState({ is_pro: false, historial: [] });
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState(false);
-  const [error,   setError]   = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     pagosApi.historial()
-      .then(setInfo)
+      .then(res => {
+        // 🔥 CAMBIO 1: Evita que 'historial' se vuelva undefined si el backend manda datos vacíos
+        setInfo({
+          is_pro: res?.is_pro === true,
+          historial: Array.isArray(res?.historial) ? res.historial : []
+        });
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -105,8 +111,8 @@ export default function Pagos() {
         </div>
       )}
 
-      {/* Historial */}
-      {info.historial?.length > 0 && (
+      {/* 🔥 CAMBIO 2: Verificación doblemente segura del arreglo antes de hacer el .map() */}
+      {Array.isArray(info?.historial) && info.historial.length > 0 && (
         <>
           <h3 className="font-semibold text-gray-800 mb-3 text-sm">Historial</h3>
           <div className="space-y-2">
