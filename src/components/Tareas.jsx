@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useApp } from "../context/AppContext";
-import { Plus, Pencil, Trash2, X, Check, Clock, FileUp, Sparkles } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Check, Clock, FileUp, Sparkles, FileDown } from "lucide-react";
 
 const STATUS_LABELS = {
   P:  { label: "Pendiente",   color: "bg-amber-100 text-amber-700" },
@@ -18,6 +18,9 @@ export default function Tareas() {
   const [pdfTarea, setPdfTarea] = useState(null); // id_tarea al que subir PDF
   const [pdfNombre, setPdfNombre] = useState("");
   const fileRef = useRef();
+
+  // Asegura la evaluación correcta si isPro llega como número (1 o 0) desde la BD
+  const usuarioEsPro = Number(isPro) === 1;
 
   const openNew  = () => { setEditing(null); setForm(EMPTY); setShowForm(true); };
   const openEdit = (t) => { setEditing(t.id_tarea); setForm({ nombre_tarea: t.nombre_tarea, fecha_entrega: t.fecha_entrega, descripcion: t.descripcion, status: t.status }); setShowForm(true); };
@@ -43,8 +46,13 @@ export default function Tareas() {
     e.target.value = "";
   };
 
+  const handleDescargarTarea = (id_tarea) => {
+    // Lógica o alerta de descarga requerida para el examen
+    alert(`Descargando archivos de la tarea ID: ${id_tarea}`);
+  };
+
   console.log(tareas);
-console.log(Array.isArray(tareas));
+  console.log(Array.isArray(tareas));
 
   return (
     <div className="max-w-3xl mx-auto p-4">
@@ -123,15 +131,24 @@ console.log(Array.isArray(tareas));
                   {t.descripcion && <p className="text-xs text-gray-500 line-clamp-2">{t.descripcion}</p>}
                 </div>
                 <div className="flex gap-1 shrink-0">
-                  {isPro ? (
+                  {/* Botón de Adjuntar PDF */}
+                  {usuarioEsPro && (
                     <button onClick={() => handlePdf(t.id_tarea)} className="p-1.5 text-gray-400 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors" title="Adjuntar PDF">
                       <FileUp size={15} />
+                    </button>
+                  )}
+
+                  {/* Icono Condicional para Descarga (PRO) o Pagos (No PRO) */}
+                  {usuarioEsPro ? (
+                    <button onClick={() => handleDescargarTarea(t.id_tarea)} className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Descargar Tarea">
+                      <FileDown size={15} />
                     </button>
                   ) : (
                     <button onClick={() => setPage("pagos")} className="p-1.5 text-gray-300 hover:text-amber-500 hover:bg-amber-50 rounded-lg transition-colors" title="Requiere Plan Pro">
                       <Sparkles size={15} />
                     </button>
                   )}
+                  
                   <button onClick={() => openEdit(t)} className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"><Pencil size={15} /></button>
                   <button onClick={() => deleteTarea(t.id_tarea)} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={15} /></button>
                 </div>

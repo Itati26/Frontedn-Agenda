@@ -84,8 +84,8 @@ export default function Pagos() {
             <span className="font-bold text-lg">¡Eres usuario Pro!</span>
           </div>
           <ul className="text-sm opacity-90 space-y-1 mb-5">
-            <li>✓ Subida de archivos PDF ilimitada</li>
-            <li>✓ Tareas y notas ilimitadas</li>
+            <li>✓ Decarga tus archovos en pdf</li>
+            <li>✓ Accede a la ruleta aleatoria de tareas</li>
             <li>✓ Acceso desde cualquier dispositivo</li>
           </ul>
           <button onClick={cancelar} disabled={working}
