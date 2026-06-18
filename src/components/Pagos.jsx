@@ -11,16 +11,16 @@ export default function Pagos() {
   useEffect(() => {
     pagosApi.historial()
       .then(res => {
-        // 1. Revisamos qué dice la base de datos normalmente
         let esPro = res?.is_pro === true;
 
-        // ─── EL MINI ATAJO POST-PAGO ───
-        // Leemos la URL para ver si viene de un pago exitoso de Mercado Pago
+        // ─── DETECTOR ULTRA-SENSIBLE DE MERCADO PAGO ───
         const params = new URLSearchParams(window.location.search);
+        
         const status = params.get("status") || params.get("collection_status");
+        const hasId = params.get("payment_id") || params.get("collection_id") || params.get("preference_id");
 
-        // Si Mercado Pago dice que fue aprobado, ¡lo volvemos Pro en la interfaz sin tanto rollo!
-        if (status === "approved" || status === "success") {
+        // Si el estatus es exitoso O si al menos regresó con un ID de Mercado Pago en la URL...
+        if (status === "approved" || status === "success" || hasId) {
           esPro = true;
         }
 
