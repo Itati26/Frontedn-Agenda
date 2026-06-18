@@ -16,11 +16,15 @@ export function AppProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState(null);
 
-  useEffect(() => {
+useEffect(() => {
     if (!user) return;
     setLoading(true);
     Promise.all([tareasApi.listar(), notasApi.listar()])
-      .then(([t, n]) => { setTareas(t); setNotas(n); })
+      .then(([t, n]) => { 
+        // 🔥 VALIDACIÓN DE SEGURIDAD: Si la API no manda un array, guardamos una lista vacía []
+        setTareas(Array.isArray(t) ? t : []); 
+        setNotas(Array.isArray(n) ? n : []); 
+      })
       .catch((e) => {
         const msg = e.message.toLowerCase();
         if (msg.includes("sesion") || msg.includes("no has iniciado") || msg.includes("token") || msg.includes("autoriz")) {
