@@ -44,7 +44,7 @@ export default function Tareas() {
   };
 
   console.log(tareas);
-console.log(Array.isArray(tareas));
+  console.log(Array.isArray(tareas));
 
   return (
     <div className="max-w-3xl mx-auto p-4">
@@ -124,9 +124,15 @@ console.log(Array.isArray(tareas));
                 </div>
                 <div className="flex gap-1 shrink-0">
                   {isPro ? (
-                    <button onClick={() => handlePdf(t.id_tarea)} className="p-1.5 text-gray-400 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors" title="Adjuntar PDF">
+                    <a 
+                      href={t.archivo_pdf} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="p-1.5 text-gray-400 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors" 
+                      title="Descargar PDF"
+                    >
                       <FileUp size={15} />
-                    </button>
+                    </a>
                   ) : (
                     <button onClick={() => setPage("pagos")} className="p-1.5 text-gray-300 hover:text-amber-500 hover:bg-amber-50 rounded-lg transition-colors" title="Requiere Plan Pro">
                       <Sparkles size={15} />
