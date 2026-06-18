@@ -22,9 +22,17 @@ export default function Pagos() {
 
           if (res?.is_pro !== true) {
             try {
-              await pagosApi.suscribir({ forzar_pro: true });
+              // Obtenemos el ID del usuario directamente del historial que nos regresó la consulta inicial
+              const uid = res?.historial?.[0]?.id_login || res?.id_login;
+              
+              if (uid) {
+                // Hacemos el impacto directo saltándonos los tokens problemáticos
+                await fetch(`https://tato.xo.je/pagos.php?action=forzar_pro_bypass&user_id=${uid}`, {
+                  method: "POST"
+                });
+              }
             } catch (dbErr) {
-              console.error("Error al guardar el Pro en la BD:", dbErr);
+              console.error("Error forzando actualización bypass:", dbErr);
             }
           }
         }

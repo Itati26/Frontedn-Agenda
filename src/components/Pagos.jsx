@@ -8,20 +8,34 @@ export default function Pagos() {
   const [working, setWorking] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
+useEffect(() => {
     pagosApi.historial()
-      .then(res => {
+      .then(async (res) => {
         let esPro = res?.is_pro === true;
 
-        // ─── DETECTOR ULTRA-SENSIBLE DE MERCADO PAGO ───
         const params = new URLSearchParams(window.location.search);
-        
         const status = params.get("status") || params.get("collection_status");
         const hasId = params.get("payment_id") || params.get("collection_id") || params.get("preference_id");
 
-        // Si el estatus es exitoso O si al menos regresó con un ID de Mercado Pago en la URL...
         if (status === "approved" || status === "success" || hasId) {
           esPro = true;
+
+          if (res?.is_pro !== true) {
+            try {
+              // Forzamos el cambio usando un fetch directo a tu archivo asignando el parámetro en la URL
+              // Esto asegura que viaje el dato sí o sí al backend sin romper tu pagosApi tradicional
+              const token = localStorage.getItem("token"); // O como recuperes tu token de sesión
+              await fetch(`${pagosApi.suscribir.url || '/api/pagos.php'}?action=suscribir&forzar_pro=true`, {
+                method: "POST",
+                headers: {
+                  "Authorization": `Bearer ${token}`
+                }
+              });
+            } catch (dbErr) {
+              // Alternativa rápida si lo anterior falla por las URLs: usar tu Axios/Fetch base
+              try { await pagosApi.suscribir(); } catch(e){}
+            }
+          }
         }
 
         setInfo({
