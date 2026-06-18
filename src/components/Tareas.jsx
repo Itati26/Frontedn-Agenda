@@ -47,8 +47,21 @@ export default function Tareas() {
   };
 
   const handleDescargarTarea = (id_tarea) => {
-    // Lógica o alerta de descarga requerida para el examen
-    alert(`Descargando archivos de la tarea ID: ${id_tarea}`);
+    const t = tareas.find((item) => item.id_tarea === id_tarea);
+    if (!t) return;
+
+    const contenido = `REPORTE DE TAREA\n\nID: ${t.id_tarea}\nNombre: ${t.nombre_tarea}\nEntrega: ${t.fecha_entrega || "No asignada"}\nDescripción: ${t.descripcion || "Sin descripción"}\nStatus: ${STATUS_LABELS[t.status]?.label || "P"}`;
+    
+    const blob = new Blob([contenido], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `Tarea_${t.nombre_tarea.replace(/\s+/g, "_")}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   console.log(tareas);
