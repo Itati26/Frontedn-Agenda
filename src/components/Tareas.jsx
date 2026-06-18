@@ -144,14 +144,9 @@ export default function Tareas() {
                   {t.descripcion && <p className="text-xs text-gray-500 line-clamp-2">{t.descripcion}</p>}
                 </div>
                 <div className="flex gap-1 shrink-0">
-                  {/* Botón de Adjuntar PDF */}
-                  {usuarioEsPro && (
-                    <button onClick={() => handlePdf(t.id_tarea)} className="p-1.5 text-gray-400 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors" title="Adjuntar PDF">
-                      <FileUp size={15} />
-                    </button>
-                  )}
+               
+                 
 
-                  {/* Icono Condicional para Descarga (PRO) o Pagos (No PRO) */}
                   {usuarioEsPro ? (
                     <button onClick={() => handleDescargarTarea(t.id_tarea)} className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Descargar Tarea">
                       <FileDown size={15} />
