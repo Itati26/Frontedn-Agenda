@@ -31,7 +31,15 @@ export default function Pagos() {
       if (!url) {
         throw new Error(`No se recibió la URL de MercadoPago: ${JSON.stringify(res)}`);
       }
-      window.location.href = url;
+
+      // ── MINI ATAJO AUTO-PRO ANTES DE IR A MERCADO PAGO ──
+      setInfo((prev) => ({ ...prev, is_pro: true }));
+      
+      // Breve retraso de 100ms para asegurar la actualización local antes de redirigir
+      setTimeout(() => {
+        window.location.href = url;
+      }, 100);
+
     } catch (err) {
       setError(err.message);
       setWorking(false);
@@ -58,7 +66,6 @@ export default function Pagos() {
     pendiente: <Clock      size={14} className="text-amber-500" />,
   };
 
-  // Functión segura para formatear la fecha sin romper la App
   const formatFecha = (fechaRaw) => {
     if (!fechaRaw || fechaRaw.startsWith("0000")) return "Reciente";
     const d = new Date(fechaRaw);
