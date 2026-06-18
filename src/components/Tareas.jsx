@@ -2,12 +2,6 @@ import { useState, useRef } from "react";
 import { useApp } from "../context/AppContext";
 import { Plus, Pencil, Trash2, Download, Sparkles, FileUp, X } from "lucide-react";
 
-const STATUS_LABELS = {
-  P: { label: "Pendiente", color: "bg-amber-100 text-amber-700" },
-  En: { label: "En progreso", color: "bg-blue-100 text-blue-700" },
-  F: { label: "Finalizada", color: "bg-green-100 text-green-700" },
-};
-
 const EMPTY = { nombre_tarea: "", fecha_entrega: "", descripcion: "", status: "P", archivo: null };
 
 export default function Tareas() {
@@ -18,6 +12,7 @@ export default function Tareas() {
   const fileRef = useRef(null);
 
   const openNew = () => { setEditing(null); setForm(EMPTY); setShowForm(true); };
+  
   const openEdit = (t) => { 
     setEditing(t.id_tarea); 
     setForm({ 
@@ -32,7 +27,16 @@ export default function Tareas() {
 
   const handleSave = () => {
     if (!form.nombre_tarea.trim()) return;
-    editing !== null ? updateTarea(editing, form) : addTarea(form);
+    
+    // Preparación de datos para el backend
+    const formData = new FormData();
+    formData.append("nombre_tarea", form.nombre_tarea);
+    formData.append("fecha_entrega", form.fecha_entrega);
+    formData.append("descripcion", form.descripcion);
+    formData.append("status", form.status);
+    if (form.archivo) formData.append("archivo", form.archivo);
+
+    editing !== null ? updateTarea(editing, formData) : addTarea(formData);
     setShowForm(false);
   };
 
@@ -49,7 +53,7 @@ export default function Tareas() {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(blobUrl);
-    } catch (e) { window.open(url, "_blank"); }
+    } catch (e) { console.error("Error al descargar:", e); }
   };
 
   return (
@@ -57,7 +61,7 @@ export default function Tareas() {
       <div className="flex items-center justify-between mb-5">
         <div>
           <h2 className="text-xl font-bold text-gray-900">Tareas</h2>
-          <p className="text-sm text-gray-500">{tareas.length} registrada{tareas.length !== 1 ? "s" : ""}</p>
+          <p className="text-sm text-gray-500">{tareas.length} registrada(s)</p>
         </div>
         <button onClick={openNew} className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors">
           <Plus size={16} /> Nueva tarea
@@ -69,11 +73,11 @@ export default function Tareas() {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
             <h3 className="font-bold text-gray-900 mb-4">{editing !== null ? "Editar tarea" : "Nueva tarea"}</h3>
             <div className="space-y-3">
-              <input className="w-full border p-2 rounded-lg text-sm" value={form.nombre_tarea} onChange={(e) => setForm({ ...form, nombre_tarea: e.target.value })} placeholder="Nombre de la tarea" />
+              <input className="w-full border p-2 rounded-lg text-sm" value={form.nombre_tarea} onChange={(e) => setForm({ ...form, nombre_tarea: e.target.value })} placeholder="Nombre" />
               <input type="date" className="w-full border p-2 rounded-lg text-sm" value={form.fecha_entrega} onChange={(e) => setForm({ ...form, fecha_entrega: e.target.value })} />
               <textarea className="w-full border p-2 rounded-lg text-sm" rows={3} value={form.descripcion} onChange={(e) => setForm({ ...form, descripcion: e.target.value })} placeholder="Descripción" />
               
-              <div className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:border-indigo-400 transition-colors" onClick={() => fileRef.current.click()}>
+              <div className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:border-indigo-400" onClick={() => fileRef.current.click()}>
                 <input type="file" ref={fileRef} className="hidden" onChange={(e) => setForm({ ...form, archivo: e.target.files[0] })} accept=".pdf" />
                 <p className="text-sm text-gray-500 flex items-center justify-center gap-2">
                   <FileUp size={16} /> {form.archivo ? form.archivo.name : "Seleccionar PDF"}
@@ -96,17 +100,14 @@ export default function Tareas() {
               <p className="text-xs text-gray-400">{t.fecha_entrega}</p>
             </div>
             <div className="flex gap-2">
-              {isPro ? (
-                <button onClick={() => downloadFile(t.archivo_pdf, t.nombre_tarea)} className="p-2 text-violet-600 hover:bg-violet-50 rounded-lg">
-                  <Download size={18} />
-                </button>
-              ) : (
-                <button onClick={() => setPage("pagos")} className="p-2 text-amber-500 hover:bg-amber-50 rounded-lg">
-                  <Sparkles size={18} />
-                </button>
-              )}
-              <button onClick={() => openEdit(t)} className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg"><Pencil size={18} /></button>
-              <button onClick={() => deleteTarea(t.id_tarea)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg"><Trash2 size={18} /></button>
+              <button 
+                onClick={() => isPro ? downloadFile(t.archivo_pdf, t.nombre_tarea) : setPage("pagos")} 
+                className={`p-2 rounded-lg ${isPro ? "text-violet-600 hover:bg-violet-50" : "text-amber-500 hover:bg-amber-50"}`}
+              >
+                {isPro ? <Download size={18} /> : <Sparkles size={18} />}
+              </button>
+              <button onClick={() => openEdit(t)} className="p-2 text-indigo-600"><Pencil size={18} /></button>
+              <button onClick={() => deleteTarea(t.id_tarea)} className="p-2 text-red-500"><Trash2 size={18} /></button>
             </div>
           </div>
         ))}
